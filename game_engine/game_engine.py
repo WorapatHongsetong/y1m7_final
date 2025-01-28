@@ -9,5 +9,5 @@ TODO:
             Playing
             Dead
             END
-        Scoreboard
+        Scoreboard 
 """

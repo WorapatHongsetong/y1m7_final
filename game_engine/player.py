@@ -44,13 +44,18 @@ class Testing:
 
     def draw(self):
         pygame.draw.circle(self.screen, (255, 0, 0), (int(self.head.x), int(self.head.y)), radius=10)
+        
+        for i in range(len(self.segment)):
+            pygame.draw.circle(self.screen, (0, 255, 0), ((int(self.segment[i].x), int(self.segment[i].y))), radius=50)
 
     def maintain_distance(self):
         mouse_pos = pygame.mouse.get_pos() 
         self.head = pygame.Vector2(mouse_pos[0], mouse_pos[1])  
         
-        for i in range(len(self.segment)):
-            pass
+        self.segment[0] = self.maintain_point(self.head, self.segment[0])
+        
+        for i in range(1, len(self.segment)):
+            self.segment[i] = self.maintain_point(self.segment[i-1], self.segment[i])
 
     def maintain_point(self, point1: pygame.Vector2, point2: pygame.Vector2) -> pygame.Vector2:
         dx, dy = point2.x - point1.x, point2.y - point1.y
