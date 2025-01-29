@@ -21,7 +21,7 @@
     },
 
     "fruits": {
-        "position": [["x1", "y1"], ["x2", "y2"]],
+        "position": [["x1", "y1", "type"], ["x2", "y2", "type"]],
         "score": ["s1", "s2"]
     }
 }
