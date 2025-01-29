@@ -2,6 +2,7 @@ import numpy as np
 from typing import Tuple, List, Union
 import logging
 import pygame
+from apple import Apple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -30,6 +31,8 @@ class Snake:
         self.direction_to_target = [0, 0]
         self.heading_vector = [self.head[0],
                                self.head[0] + self.segment_raduis[0]]
+        
+        self.score = 0
 
     def maintain_point(self,
                        point1: List[int],
@@ -121,9 +124,24 @@ class Snake:
 
         self.rotation_points(np.degrees(diff_angle))
 
-    def set_head(self, pos: List[int]) -> None:
-        self.head = pos
+    def check_collision_with(self, other: Apple) -> bool:
+        x, y = other.get_position()
+        radius = other.get_radius()
+        head_x, head_y = self.head
+        
+        distance = np.sqrt(np.power(head_x - x) + np.power(head_y - y))
+        
+        return distance < radius + self.segment_raduis[0]
 
+    # Update part
+    def update_score(self, score: int) -> None:
+        self.score += score
+
+    # Set part
+    def set_head(self, pos: List[int]) -> None:
+        self.head = pos        
+    
+    # Access part
     def get_segment_postion(self) -> List[List[int]]:
         return [self.head] + self.segment
 
@@ -133,6 +151,9 @@ class Snake:
     def get_direction(self,
                       other: Union[List[int], Tuple[int, int]]) -> Tuple[int, int]:
         return [other[0] - self.head[0], other[1] - self.head[1]]
+    
+    def get_score(self) -> int:
+        return self.score
 
 ############### Testing Implement simple procedural animation ##############
 

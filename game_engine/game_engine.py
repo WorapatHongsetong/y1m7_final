@@ -14,11 +14,131 @@ TODO:
             END
         Scoreboard 
 """
+from apple import *
 from player import Snake
+from enum import Enum
+from typing import Dict, Tuple
+import time
+import numpy as np
+
+
+class State(Enum):
+    WAITING = 0
+    PLAYING = 1
+    DEAD = 2 
+
 
 class Game:
     # Constant Value
-    WIDTH, HEIGHT = 1200, 750 
+    WIDTH, HEIGHT = 1200, 750
+    APPLE_NUMS = 20
+    GENERATE_TIME = 10
 
     def __init__(self) -> None:
-        self.player1 = Snake()
+
+        self.ready_status = [False, False] 
+
+        self.player1 = Snake(
+            head=(self.WIDTH // 2 - 50, self.HEIGHT // 2)
+        )
+
+        self.player2 = Snake(
+            head=(self.WIDTH // 2 + 50, self.HEIGHT // 2)
+        )
+
+        self.game_state = State.WAITING
+        self.scoreboard = [0, 0] # player1, player2
+
+        self.apples = []
+        self.prev_generate_time = time.time() 
+    
+    def waiting_state(self, player1_input: str=None, player2_input: str=None) -> None:
+        if self.game_state != State.WAITING:
+            return
+
+        # TODO: check player input here
+        while self.ready_status != [True, True]:
+            if player1_input == "space":
+                self.ready_status[0] = True
+            
+            if player2_input == "space":
+                self.ready_status[1] = True
+        
+        self.game_state = State.PLAYING
+
+    
+    def generate_apples(self) -> None:
+        current_time = time.time()
+        
+        apple_types = [Apple, GoldenApple, LazerApple]
+        weight = [0.7, 0.1, 0.2]
+        
+        if current_time - self.prev_generate_time >= self.GENERATE_TIME:
+            
+            left_apples = self.APPLE_NUMS - len(self.apples)
+            
+            if left_apples == 0:
+                return
+            
+            for _ in range(left_apples):
+                random_apple = np.random.choice(apple_types, p=weight)
+                rand_x, rand_y = np.random.randint(50, self.WIDTH - 50), np.random.randint(50, self.HEIGHT - 50)
+                self.apples.append(random_apple(
+                    position=(rand_x, rand_y)
+                ))
+
+    def update(self) -> None:
+        if self.game_state != State.PLAYING:
+            return
+
+        apples = self.apples
+        
+        for i, apple in enumerate(self.apples):
+            if self.player1.check_collision_with(apple):
+                self.player1.update_score(apple.get_score())
+                apples.pop(i)
+
+            if self.player2.check_collision_with(apple):
+                self.player2.update_score(apple.get_score())
+                apples.pop(i)
+            
+        self.apples = apples
+        
+        self.scoreboard[0] = self.player1.get_score()
+        self.scoreboard[1] = self.player2.get_score()
+        
+    
+    def handle_event(self, 
+                     player1_mouse: Tuple[int, int] = None, 
+                     player2_mouse: Tuple[int, int] = None) -> None:
+        if self.game_state != State.PLAYING:
+            return
+
+        # TODO: check collision with an apple 
+        self.player1.rotate_to_target(player1_mouse)
+        self.player2.rotate_to_target(player2_mouse)
+        self.player1.move_forward()
+        self.player2.move_forward()
+        self.update()
+    
+    # Access data
+    def get_game_state(self) -> Dict:
+        data = {
+            "game": {
+                "leaderboard": [
+                    ["player1", self.scoreboard[0]],
+                    ["player2", self.scoreboard[1]]
+                ],
+                "state": self.game_state
+            }
+        }
+        return data
+
+    def get_player_data(self) -> Dict:
+        pass
+    
+    def get_fruit_data(self) -> Dict:
+        pass
+
+if __name__ == "__main__":
+    pass
