@@ -15,7 +15,7 @@ TODO:
 class Snake:
     # Constant value
     SEGMENT_SPACE = 20
-    MAX_BODY_TURN = np.radians(3)
+    MAX_BODY_TURN = np.radians(60)
 
     def __init__(self, 
                  head: List[int], 
@@ -31,23 +31,40 @@ class Snake:
 
     def maintain_point(self, 
                        point1: List[int], 
-                       point2: List[int]) -> List[int]:
+                       point2: List[int],
+                       prev_angle: float=None) -> List[int]:
         
         dx, dy = point2[0] - point1[0], point2[1] - point1[1]
         current_distance = np.sqrt(dx**2 + dy**2)
 
         if current_distance != self.SEGMENT_SPACE:
             scale = self.SEGMENT_SPACE / current_distance  
-            point2[0] = point1[0] + dx * scale
-            point2[1] = point1[1] + dy * scale
+            dx *= scale
+            dy *= scale
 
-        return point2
+
+            if prev_angle is not None:
+                current_angle = np.arctan2(dy, dx)
+                angle_diff = current_angle - prev_angle
+
+                angle_diff = (angle_diff + np.pi) % (2 * np.pi) - np.pi
+
+                if abs(angle_diff) > self.MAX_BODY_TURN:
+                    angle_diff = np.clip(angle_diff, -self.MAX_BODY_TURN, self.MAX_BODY_TURN)
+                    current_angle = prev_angle + angle_diff
+
+                    dx = np.cos(current_angle) * self.SEGMENT_SPACE
+                    dy = np.sin(current_angle) * self.SEGMENT_SPACE
+
+            point2[0] = point1[0] + dx 
+            point2[1] = point1[1] + dy
+        return point2, np.arctan2(dy, dx)
     
     def maintain_distance(self) -> None:
-        self.segment[0] = self.maintain_point(self.head, self.segment[0])
+        self.segment[0], prev_angle = self.maintain_point(self.head, self.segment[0])
         
         for i in range(1, len(self.segment)):
-            self.segment[i] = self.maintain_point(self.segment[i-1], self.segment[i])
+            self.segment[i], prev_angle = self.maintain_point(self.segment[i-1], self.segment[i], prev_angle)
     
     def rotation_points(self, angle: int | float) -> None:
         vector = self.heading_vector
@@ -125,7 +142,8 @@ class Testing:
         self.clock = pygame.time.Clock()
         
         self.player = Snake(
-            head=(self.WIDTH//2, self.HEIGHT//2)
+            head=(self.WIDTH//2, self.HEIGHT//2),
+            segment_num=20
         )
         
 
@@ -136,18 +154,9 @@ class Testing:
                 if event.type == pygame.QUIT:
                     running = False
 
-            # Update the position of point_b and maintain the distance
             mouse_pos = pygame.mouse.get_pos()
-            # self.player.set_head(mouse_pos)
             self.player.move_forward()
             self.player.rotate_to_target(mouse_pos)
-
-            keys = pygame.key.get_pressed() 
-            if keys[pygame.K_LEFT]:
-                self.player.rotation_points(-5)
-            if keys[pygame.K_RIGHT]:
-                self.player.rotation_points(5)
-
             self.player.maintain_distance()
 
             # Render everything
