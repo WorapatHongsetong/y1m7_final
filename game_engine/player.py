@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple, List, Union
 import logging
 import pygame
 
@@ -15,11 +15,19 @@ TODO:
 class Snake:
     # Constant value
     SEGMENT_SPACE = 20
+    MAX_BODY_TURN = np.radians(3)
 
-    def __init__(self, head: List[int], segment_num: int=3) -> None:
+    def __init__(self, 
+                 head: List[int], 
+                 segment_num: int=3,
+                 velocity: Union[int, float]=5) -> None:
         self.head = head
         self.segment = [[0, 0] for _ in range(segment_num)]
-        self.segment_raduis = [5-i for i in range(segment_num+1)]
+        self.segment_raduis = [20-i for i in range(segment_num+1)]
+    
+        self.velocity = velocity
+        self.direction_to_target = [0, 0]
+        self.heading_vector = [self.head[0], self.head[0] + self.segment_raduis[0]]
 
     def maintain_point(self, 
                        point1: List[int], 
@@ -40,12 +48,71 @@ class Snake:
         
         for i in range(1, len(self.segment)):
             self.segment[i] = self.maintain_point(self.segment[i-1], self.segment[i])
+    
+    def rotation_points(self, angle: int | float) -> None:
+        vector = self.heading_vector
 
-    def get_segment_postion(self) -> List[int]:
-        pass
+        # Change theta_1 to radians
+        # and intialize rotate matrix
+        theta_1 = np.radians(angle)
+        rotate_matrix = [
+            [np.cos(theta_1), -np.sin(theta_1)],
+            [np.sin(theta_1), np.cos(theta_1)]
+        ]
+        
+        new_point=[0, 0]
+        for i in range(2):
+            res = 0
+            for j in range(2):
+                res += rotate_matrix[i][j] * vector[j]
+            new_point[i] = res
+        
+        self.heading_vector = new_point
+    
+    def move_forward(self) -> None:
+        angle = np.atan2(self.heading_vector[1], self.heading_vector[0])
+        move_x = self.velocity * np.cos(angle)
+        move_y = self.velocity * np.sin(angle)
+        
+        new_point = (self.head[0] + move_x, self.head[1] + move_y)
+        self.head = new_point
+    
+    def rotate_to_target(self, target: List[int]) -> None:
+
+        v_head_t = [
+            target[0] - self.head[0],
+            target[1] - self.head[1]
+        ] 
+
+        vector_angle = np.atan2(self.heading_vector[1], self.heading_vector[0])
+        target_angle = np.atan2(v_head_t[1], v_head_t[0])
+        diff_angle = target_angle - vector_angle
+        
+        max_turn_rate = 0.5
+
+        if diff_angle > np.pi:
+            diff_angle -= 2 * np.pi
+        elif diff_angle < -np.pi:
+            diff_angle += 2 * np.pi
+
+        if abs(diff_angle) > max_turn_rate:
+            diff_angle = max_turn_rate if diff_angle > 0 else -max_turn_rate
+
+        self.rotation_points(np.degrees(diff_angle))
+
+
+    def set_head(self, pos: List[int]) -> None:
+        self.head = pos 
+    
+    def get_segment_postion(self) -> List[List[int]]:
+        return [self.head] + self.segment
 
     def get_segment_radius(self) -> List[int]:
         return self.segment_raduis
+
+    def get_direction(self, 
+                      other: Union[List[int], Tuple[int, int]]) -> Tuple[int, int]:
+        return [other[0] - self.head[0], other[1] -  self.head[1]]
 
 ############### Testing Implement simple procedural animation ##############
 class Testing:
@@ -70,6 +137,17 @@ class Testing:
                     running = False
 
             # Update the position of point_b and maintain the distance
+            mouse_pos = pygame.mouse.get_pos()
+            # self.player.set_head(mouse_pos)
+            self.player.move_forward()
+            self.player.rotate_to_target(mouse_pos)
+
+            keys = pygame.key.get_pressed() 
+            if keys[pygame.K_LEFT]:
+                self.player.rotation_points(-5)
+            if keys[pygame.K_RIGHT]:
+                self.player.rotation_points(5)
+
             self.player.maintain_distance()
 
             # Render everything
@@ -81,8 +159,9 @@ class Testing:
         pygame.quit()
 
     def draw(self):
-        segment_radius = self.player.get_segment_radius() 
         segment_position = self.player.get_segment_postion()
+        segment_radius = self.player.get_segment_radius() 
+        
 
         for i in range(len(segment_radius)):
             pygame.draw.circle(self.screen, 
@@ -90,25 +169,6 @@ class Testing:
                                ((int(segment_position[i][0]), int(segment_position[i][1]))), 
                                radius=segment_radius[i])
 
-    # def maintain_distance(self):
-    #     mouse_pos = pygame.mouse.get_pos() 
-    #     self.head = pygame.Vector2(mouse_pos[0], mouse_pos[1])  
-        
-    #     self.segment[0] = self.maintain_point(self.head, self.segment[0])
-        
-    #     for i in range(1, len(self.segment)):
-    #         self.segment[i] = self.maintain_point(self.segment[i-1], self.segment[i])
-
-    # def maintain_point(self, point1: pygame.Vector2, point2: pygame.Vector2) -> pygame.Vector2:
-    #     dx, dy = point2.x - point1.x, point2.y - point1.y
-    #     current_distance = np.sqrt(dx**2 + dy**2)
-
-    #     if current_distance != self.SEGMENT_RADIUS:
-    #         scale = self.SEGMENT_RADIUS / current_distance  
-    #         point2.x = point1.x + dx * scale
-    #         point2.y = point1.y + dy * scale
-
-    #     return point2
 
 if __name__ == "__main__":
     test = Testing()
