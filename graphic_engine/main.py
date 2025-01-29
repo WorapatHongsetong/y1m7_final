@@ -1,6 +1,22 @@
 import pygame
 import math
 
+def bezier(points, num_points=100):
+    n = len(points) - 1
+    curve_points = []
+    for t in range(num_points + 1):
+        t /= num_points
+        x = sum(
+            points[i][0] * (1 - t) ** (n - i) * t ** i * math.comb(n, i)
+            for i in range(n + 1)
+        )
+        y = sum(
+            points[i][1] * (1 - t) ** (n - i) * t ** i * math.comb(n, i)
+            for i in range(n + 1)
+        )
+        curve_points.append((x, y))
+    return curve_points
+
 class PlayerGraphicBasic:
     def __init__(self, chain_position: list[tuple[float, float, float]], screen: pygame.Surface, color: str = "aliceblue") -> None:        
         self.screen = screen
@@ -9,40 +25,32 @@ class PlayerGraphicBasic:
 
     def body_draw(self):
         skeleton_vectors = []
-        left_vectors = []
-        right_vectors = []
+        left_bones = []
+        right_bones = []
         for i, bone in enumerate(self.skeleton):
             pygame.draw.circle(surface=self.screen, color=self.color, center=(bone[0], bone[1]), radius=bone[2])
-            print(i)
+            pygame.draw.circle(surface=self.screen, color="black", center=(bone[0], bone[1]), radius=bone[2] - 1)
 
             if i <= len(self.skeleton) - 2:
-                print(i)
                 direction = math.atan(self.skeleton[i+1][1] - bone[1])/(self.skeleton[i+1][0])
-
 
             bone_left = (math.cos(direction + math.pi/2) * bone[2] + bone[0],
                          math.sin(direction + math.pi/2) * bone[2] + bone[1])
+            left_bones.append(bone_left)
             bone_right = (math.cos(direction - math.pi/2) * bone[2] + bone[0],
                           math.sin(direction - math.pi/2) * bone[2] + bone[1])
+            right_bones.append(bone_right)
 
-            if i >= 1:
-                skeleton_vectors.append(((bone[0], bone[1]),(previous_bone[0], previous_bone[1])))
-                pygame.draw.line(surface=self.screen, color=self.color, start_pos=previous_bone_left, end_pos=bone_left)
-                pygame.draw.line(surface=self.screen, color=self.color, start_pos=previous_bone_right, end_pos=bone_right)
-                
-                if i == 1:
-                    pygame.draw.circle(surface=self.screen, color="white", center=previous_bone_left, radius=15)
-                    pygame.draw.circle(surface=self.screen, color="white", center=previous_bone_right, radius=15)
-                    pygame.draw.circle(surface=self.screen, color="black", center=previous_bone_left, radius=10)
-                    pygame.draw.circle(surface=self.screen, color="black", center=previous_bone_right, radius=10)
+        left_bones = bezier(left_bones)
+        right_bones = bezier(right_bones)
+        right_bones.reverse()
 
-            previous_bone = (bone[0], bone[1], bone[2])
-            previous_bone_left = (math.cos(direction + math.pi/2) * previous_bone[2] + previous_bone[0],
-                                  math.sin(direction + math.pi/2) * previous_bone[2] + previous_bone[1])
-            previous_bone_right = (math.cos(direction - math.pi/2) * previous_bone[2] + previous_bone[0],
-                                   math.sin(direction - math.pi/2) * previous_bone[2] + previous_bone[1])
-
-            
+        pygame.draw.lines(surface=self.screen, color=self.color , closed=True, points=left_bones + right_bones)
+        # pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=right_bones)
+        pygame.draw.circle(surface=self.screen, color="white", center=left_bones[0], radius=15)
+        pygame.draw.circle(surface=self.screen, color="white", center=right_bones[-1], radius=15)
+        pygame.draw.circle(surface=self.screen, color="black", center=left_bones[0], radius=10)
+        pygame.draw.circle(surface=self.screen, color="black", center=right_bones[-1], radius=10)
 
 
         
