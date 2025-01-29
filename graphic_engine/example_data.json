@@ -1,0 +1,27 @@
+{
+    "game": {
+        "leaderboard": [["player1", "score"], ["player2", "score"]],
+        "stage": "let you decide"
+    },
+
+    "players": {
+        "player1":{
+            "segments": [["x","y","r"], [], []],
+            "color": "red, green, blue, pink, cyan, violet",
+            "health": "up to you: True, False, or number (currnet, max)",
+            "score": "int of fruits eaten.",
+            "laser": {
+                "shoot": "bool",
+                "coordinate": ["x", "y", "angle rad"],
+                "hit": "bool"
+            }
+        },
+
+        "player2": {}
+    },
+
+    "fruits": {
+        "position": [["x1", "y1"], ["x2", "y2"]],
+        "score": ["s1", "s2"]
+    }
+}
