@@ -36,7 +36,7 @@ class Client:
         self.id = id
         self.ready_event = threading.Event()
 
-    def update_user(self, data: dict) -> None:
+    def send_data(self, data: dict) -> None:
         try:
             json_form = json.dumps(data)
             self.client_socket.sendall((json_form + '\n').encode())
@@ -56,15 +56,19 @@ class Server():
     def __init__(self) -> None:
         self.clients = {}
         self.input_queue = queue.Queue()
+    
         self.game_state = {
             "state": 0,
             "players": [],
             "coin_position": []
         }
+        
+        self.player_data = {}
+        self.fruit_data = {}
 
         self.lock = threading.Lock()
 
-        self.game = Game()
+        self.game_engine = Game()
 
     def broadcast(self) -> None:
         """ Update to every player """
@@ -75,8 +79,37 @@ class Server():
                 # get user_input from queue
                 while not self.input_queue.empty():
                     user_input = self.input_queue.get()
+                    
+                    self.game_state = self.game_engine.get_game_state()
+                    
+                    # Waiting
+                    if self.game_state.get("game").get("state") == 0:
+                        try:
+                            if user_input.get("name", None) == None:
+                                continue
 
+                            self.game_engine.set_players_name(
+                                name=user_input.get("name"),
+                                player=user_input.get("id")
+                            ) 
+                        except Exception as e:
+                            logger.error("Error to set player name %s", e)
+
+                        self.game_engine.waiting_state(
+                            player1_input=user_input.get("input").get("keyboard_input"),
+                            player2_input=user_input.get("input").get("keyboard_input")
+                        )
+                    
+                    # Playing
+                    elif self.game_state.get("game").get("state") == 1:
+                        self.game_engine.playing_state(
+                            player1_mouse=user_input.get("players").get("player1").get("mouse_pos"),
+                            player2_mouse=user_input.get("players").get("player2").get("mouse_pos")
+                        )
+
+                # Sending data part
                 for id in list(self.clients.keys()):
+                    
                     # Safely get the client object
                     client = self.clients.get(id)
                     if not client:
@@ -87,7 +120,8 @@ class Server():
                         continue
 
                     try:
-                        client.update_user(self.game_state)
+                        # TODO: Change data format
+                        client.send_data()
                         logger.info("Send game_state to player")
 
                     except Exception as e:
@@ -110,17 +144,13 @@ class Server():
 
             client.ready_event.set()  # Send signal to be ready
 
+            # recieve data parts
             while True:
                 buffer = b""
-
-                # receiving user input
                 while True:
                     data = client.client_socket.recv(32)
-
-                    # receive data as bytes
                     if data:
                         buffer += data
-
                         if buffer.endswith(b'\n'):
                             break
                     else:
@@ -132,29 +162,24 @@ class Server():
                 if buffer:
                     try:
                         # Update data of Client
-                        print(f"Upddating player {client.id}'s data")  # DEBUG
-                        # client.client_socket.send("Data recieved".encode()) # DEBUG
+                        logger.info(f"Upddating player {client.id}'s data")
 
                         json_data = json.loads(buffer.strip())
+                        
                         # put user input to queue
                         self.input_queue.put(json_data)
                         logger.info("Received data from %s: %s",
                                     client.id, json_data)
 
-                        # DEBUG
-                        print(f"Player {client.id}'s data updated")
+                        logger.info(f"Player {client.id}'s data updated")
 
                     except json.JSONDecodeError as e:
-                        print(f"Error to decode JSON data: {e}")
                         logger.error("Error to decode JSON data: %s", e)
 
         except ConnectionError:
-            # Show on the server and send it to everyone
-            print(f"{client.id} left the game!")
             logger.info("%s left the game", client.id)
 
         finally:
-            # clear and remove everything
             with self.lock:
                 if client.id in self.clients:
                     self.clients.pop(client.id)

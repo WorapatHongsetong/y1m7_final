@@ -122,6 +122,8 @@ class Game:
                       player2_mouse: Tuple[int, int] = None) -> None:
         if self.game_state != State.PLAYING:
             return
+        
+        self.generate_apples()
 
         # TODO: check collision with an apple
         self.player1.rotate_to_target(player1_mouse)
