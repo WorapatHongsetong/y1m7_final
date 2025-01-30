@@ -56,13 +56,13 @@ class Server():
     def __init__(self) -> None:
         self.clients = {}
         self.input_queue = queue.Queue()
-    
+
         self.game_state = {
             "state": 0,
             "players": [],
             "coin_position": []
         }
-        
+
         self.player_data = {}
         self.fruit_data = {}
 
@@ -79,9 +79,8 @@ class Server():
                 # get user_input from queue
                 while not self.input_queue.empty():
                     user_input = self.input_queue.get()
-                    
                     self.game_state = self.game_engine.get_game_state()
-                    
+
                     # Waiting
                     if self.game_state.get("game").get("state") == 0:
                         try:
@@ -91,25 +90,27 @@ class Server():
                             self.game_engine.set_players_name(
                                 name=user_input.get("name"),
                                 player=user_input.get("id")
-                            ) 
+                            )
                         except Exception as e:
                             logger.error("Error to set player name %s", e)
 
                         self.game_engine.waiting_state(
-                            player1_input=user_input.get("input").get("keyboard_input"),
-                            player2_input=user_input.get("input").get("keyboard_input")
+                            player_id=user_input.get("id"),
+                            player_input=user_input.get("input").get("keyboard_input")
                         )
-                    
+
                     # Playing
                     elif self.game_state.get("game").get("state") == 1:
                         self.game_engine.playing_state(
-                            player1_mouse=user_input.get("players").get("player1").get("mouse_pos"),
-                            player2_mouse=user_input.get("players").get("player2").get("mouse_pos")
+                            player_id=user_input.get("id"),
+                            player_mouse=user_input.get("input").get("mouse_pos")
                         )
+
+                self.game_engine.update()
 
                 # Sending data part
                 for id in list(self.clients.keys()):
-                    
+
                     # Safely get the client object
                     client = self.clients.get(id)
                     if not client:
@@ -165,7 +166,7 @@ class Server():
                         logger.info(f"Upddating player {client.id}'s data")
 
                         json_data = json.loads(buffer.strip())
-                        
+
                         # put user input to queue
                         self.input_queue.put(json_data)
                         logger.info("Received data from %s: %s",
