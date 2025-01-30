@@ -26,9 +26,10 @@ class Snake:
         self.heading_vector = [self.head[0],
                                self.head[0] + self.segment_raduis[0]]
         
-        self.score = 0
         self.name = name
+        self.status = "NORMAL"
         
+        self.score = 0
         self.grow_thershold = 30
 
     def maintain_point(self,
@@ -169,6 +170,9 @@ class Snake:
     def set_name(self, name: str) -> None:
         self.name = name
     
+    def set_status(self, status:str) -> None:
+        self.status = status
+    
     # Access part
     def get_segment_postion(self) -> List[List[int]]:
         return [self.head] + self.segment
@@ -185,6 +189,9 @@ class Snake:
 
     def get_name(self) -> str:
         return self.name
+
+    def get_status(self) -> str:
+        return self.status
 ############### Testing Implement simple procedural animation ##############
 
 

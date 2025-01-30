@@ -36,6 +36,7 @@ class Game:
     WIDTH, HEIGHT = 1200, 750
     APPLE_NUMS = 20
     GENERATE_TIME = 10
+    EFFECT_TIME = 5
 
     def __init__(self) -> None:
 
@@ -54,6 +55,7 @@ class Game:
 
         self.apples = []
         self.prev_generate_time = time.time()
+        self.prev_effect_time = [None, None]
 
     def waiting_state(self,
                       player_id: int, 
@@ -102,9 +104,25 @@ class Game:
         self.player2.move_forward()
         self.player1.maintain_distance()
         self.player2.maintain_distance()
+        
+        current_time = time.time()
+
+        for i in range(self.prev_effect_time):
+            if self.prev_effect_time[i] and current_time - self.prev_effect_time[i] >= self.EFFECT_TIME:
+                if i == 0 and self.player1.get_status() != "NORMAL":
+                    self.player1.set_status("NORMAL")
+                    self.prev_effect_time[i] = current_time
+
+                elif i == 1 and self.player2.get_status() != "NORMAL":
+                    self.player2.set_status("NORMAL")
+                    self.prev_effect_time[i] = current_time
+                
 
         for i, apple in enumerate(self.apples):
             if self.player1.check_collision_with(apple):
+                if apple.get_effect() == "GOLDEN":
+                    self.player1.set_status(apple.get_effect())
+                    self.prev_effect_time = time.time()
                 self.player1.update_score(apple.get_score())
                 apples.pop(i)
 
@@ -115,10 +133,14 @@ class Game:
         self.apples = apples
 
         if self.player1.check_collision_with(self.player2.segment[-1]):
+            if self.player2.get_status != "NORMAL":
+                return
             self.player2.shorten_tail()  
             self.player2.update_score(-30)
 
         if self.player2.check_collision_with(self.player1.segment[-1]):
+            if self.player1.get_status != "NORMAL":
+                return
             self.player1.shorten_tail() 
             self.player1.update_score(-30)
 
@@ -200,17 +222,17 @@ class Game:
             "players": {
                 "player1": {
                     "segments": list(zip(self.player1.get_segment_postion(), self.player1.get_segment_radius())),
-                    "color": ["blue"] + ["green"] * len(self.player1.get_segment_postion()),
+                    "color": ["blue"] + (["green"] * len(self.player1.get_segment_postion()) - 1) + ['orange' if self.player1.get_status() == "NORMAL" else 'green'],
                     "score": self.player1.get_score()
                 },
                 "player2": {
                     "segments": list(zip(self.player2.get_segment_postion(), self.player2.get_segment_radius())),
-                    "color": ["red"] + ["green"] * len(self.player2.get_segment_postion()),
+                    "color": ["red"] + (["green"] * len(self.player2.get_segment_postion()) - 1) + ['orange' if self.player2.get_status() == "NORMAL" else 'green'],
                     "score": self.player2.get_score()
                 }
             },
             "fruits": {
-                "position": [[apple.get_position()[0], apple.get_position()[1], apple.get_effect()] for apple in self.apples],
+                "position": [[apple.get_position()[0], apple.get_position()[1], apple.get_color()] for apple in self.apples],
                 "score": [apple.get_score() for apple in self.apples]
             }
         }

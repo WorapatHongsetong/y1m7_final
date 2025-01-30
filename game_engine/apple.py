@@ -6,7 +6,8 @@ class Apple:
         self.position = position
         self.score = 3
         self.effect = "NORMAL"
-        self.radius = 9 
+        self.radius = 9
+        self.color = "red"
 
     def get_score(self) -> int:
         return self.score
@@ -20,6 +21,9 @@ class Apple:
     def get_radius(self) -> int:
         return self.radius
 
+    def get_color(self) -> str:
+        return self.color
+
 
 class GoldenApple(Apple):
     # Immortal for a while
@@ -27,6 +31,7 @@ class GoldenApple(Apple):
         super().__init__(position)
         self.score = 10
         self.effect = "GOLDEN"
+        self.color = 'yellow'
 
 
 class LazerApple(Apple):
