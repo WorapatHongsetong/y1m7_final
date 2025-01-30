@@ -1,5 +1,6 @@
 import pygame
 import math
+import pprint
 
 def bezier(points, num_points=100):
     n = len(points) - 1
@@ -64,7 +65,7 @@ class Fruits:
         for fruit_pos in self.positions:
             pygame.draw.circle(surface=self.screen, color="darkgoldenrod1", center=fruit_pos, radius=radius)
 
-class GameEngine:
+class GraphicEngine:
     def __init__(self, screen_size: tuple[int, int]) -> None:
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -78,13 +79,10 @@ class GameEngine:
     def reg_fruits(self, fruit_lst: Fruits) -> None:
         self.fruits = fruit_lst
 
-    def run(self) -> None:
+    def update(self) -> None:
         running = True
         while running:
             self.screen.fill("black")
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
 
             for player in self.player_lst:
                 player.body_draw()
@@ -99,8 +97,26 @@ class GameEngine:
 
         pygame.quit() 
 
+def extract_json(json_data: dict):
+    DATA = json_data
+    pprint.pprint(DATA)
+    print(type(DATA))
+    game_leader_board = DATA.get("game").get("leaderboard")
+    game_state = DATA.get("game").get("state")
+
+    players_lst = []
+    for player in DATA.get("players").key():
+        players_lst.append([player.get("name"),
+                            player.get("segments"),
+                            player.get("color"),
+                            player.get("score")])
+    
+    fruit_pos = DATA.get("fruits").get("position")
+
+    return game_state, game_leader_board, players_lst, fruit_pos
+
 if __name__ == "__main__":
-    GAME = GameEngine((800,600))
+    GAME = GraphicEngine((800,600))
 
     EXAMPLE_CHAIN = [(100, 150, 50), (200, 170, 45), (300, 180, 35), (400, 200, 20)]
     PLAYER1 = PlayerGraphicBasic(EXAMPLE_CHAIN, GAME.screen)

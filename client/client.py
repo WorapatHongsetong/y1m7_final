@@ -4,6 +4,7 @@ import json
 import pygame
 import logging
 from logging.handlers import RotatingFileHandler
+from graphic_engine import main as gp
 
 # DEBUG
 from pprint import pprint
@@ -136,10 +137,32 @@ class MainGame:
             logger.info("Existing Client...")
 
     def run_game(self) -> None:
+        SCREEN = (1200, 750)
+
+        graphic = gp.GraphicEngine(SCREEN)
+
+        running = True
         
-        # Just a dummy while loop You can delete this
-        while True:
-            pass
+        while running:
+
+            game_state, leader_board, player_lst, fruits_lst = gp.extract_json(self.share_data)
+            graphic.reg_players(player_lst)
+            graphic.reg_fruits(fruits_lst)
+
+            graphic.screen.fill("black")
+
+            for player in graphic.player_lst:
+                player.body_draw()
+            
+            if graphic.fruits:
+                graphic.fruits.body_draw()
+
+            pygame.display.flip()
+            graphic.clock.tick(60)
+        
+        pygame.quit()
+
+        
 
     def connect_to_server(self) -> None:
         """ Open socket to connect the server """
