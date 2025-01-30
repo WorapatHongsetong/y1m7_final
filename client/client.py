@@ -5,6 +5,7 @@ import pygame
 import logging
 from logging.handlers import RotatingFileHandler
 from graphic_engine import main as gp
+import time
 
 # DEBUG
 from pprint import pprint
@@ -79,7 +80,7 @@ class MainGame:
                 self.clock.tick(60)
 
         except Exception as e:
-            logger.error("Error in send_key_presses: %s", e)
+            logger.error("Error in send_message: %s", e)
             self.connecting_status = False
 
     def receive_data(self, sock: socket.socket) -> None:
@@ -116,6 +117,7 @@ class MainGame:
                             # Update screen data
                             try:
                                 self.share_data.update(json_data)
+                                logger.info("share_data: %s", self.share_data)
 
                                 # Already get an id
                                 if self.ready_get_id.is_set():
@@ -123,7 +125,6 @@ class MainGame:
                                 self.ready_get_id.set()
                             except Exception as e:
                                 logger.error("Error updating data: %s", e)
-                                logger.info(self.share_data)
 
                         except json.JSONDecodeError as e:
                             logger.error(

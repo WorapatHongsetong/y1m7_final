@@ -88,7 +88,6 @@ class Server():
                                     name=user_input.get("name"),
                                     player=user_input.get("id")
                                 )
-                                client.ready_event.set()  # Send signal to be ready
                             except Exception as e:
                                 logger.error("Error to set player name %s", e)
 
@@ -105,34 +104,26 @@ class Server():
                         )
 
                 self.game_engine.update()
-
+                try:
+                    data = self.game_engine.get_game_data()
+                except Exception as e:
+                    logger.error(f"Error getting game data: {e}")
+                    continue 
+              
                 # Sending data part
-                for id in list(self.clients.keys()):
-
-                    # Safely get the client object
-                    client = self.clients.get(id)
-                    if not client:
-                        continue
-
-                    # Wait untill player got an ID
-                    if not client.ready_event.is_set():
-                        continue
-
-                    try:
-                        # TODO: Change data format
-                        data = self.game_engine.get_game_data()
-
-                        client.send_data(data)
-                        logger.info("Send game_state to player")
-
-                    except Exception as e:
-                        print(f"error broadcasting to {id}: {e}")
-                        logger.error("error broadcastring to %d: %s", id, e)
-
-                        # Handle if client not appear in clients
-                        if id in self.clients:
-                            self.clients.pop(id)
-                            client.client_socket.close()
+                for client_id, client in list(self.clients.items()):
+                    if client:
+                        try:
+                            client.send_data(data)
+                            logger.info(f"Sent game_state to player {client_id}")
+                        except Exception as e:
+                            logger.error(f"Error broadcasting to {client_id}: {e}")
+                            if client_id in self.clients:
+                                self.clients.pop(client_id)
+                                try:
+                                    client.client_socket.close()
+                                except Exception as e:
+                                    logger.error(f"Error closing socket for client {client_id}: {e}")
             threading.Event().wait(0.016)
 
     def handle_client(self, client: Client) -> None:
