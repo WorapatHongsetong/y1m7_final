@@ -130,17 +130,22 @@ class Snake:
 
     def check_collision_with(self, other: Union[Apple, Self]) -> bool:
         head_x, head_y = self.head
+        x, y = None, None
 
         if isinstance(other, Apple):
             x, y = other.get_position()
             radius = other.get_radius()
             
         elif isinstance(other, Snake):
+            print("I already eaten tail")
+            exit(1)
             x, y = other.get_segment_postion()[-1]
             radius = other.get_segment_radius()[-1]
 
-        distance = np.hypot((head_x - x), (head_y - y))
-        return distance < radius + self.segment_raduis[0]
+        if x and y:
+            distance = np.hypot((head_x - x), (head_y - y))
+            return distance < radius + self.segment_raduis[0]
+        return False
 
     def calculate_segment_radius(self, index: int) -> None:
         head_radius = 20  
