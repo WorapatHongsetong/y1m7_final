@@ -56,10 +56,10 @@ class PlayerGraphicBasic:
 
         pygame.draw.lines(surface=self.screen, color=self.color , closed=True, points=left_bones + right_bones)
         # pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=right_bones)
-        pygame.draw.circle(surface=self.screen, color="white", center=left_bones[0], radius=15)
-        pygame.draw.circle(surface=self.screen, color="white", center=right_bones[-1], radius=15)
-        pygame.draw.circle(surface=self.screen, color="black", center=left_bones[0], radius=10)
-        pygame.draw.circle(surface=self.screen, color="black", center=right_bones[-1], radius=10)
+        pygame.draw.circle(surface=self.screen, color="black", center=left_bones[0], radius=15)
+        pygame.draw.circle(surface=self.screen, color="black", center=right_bones[-1], radius=15)
+        pygame.draw.circle(surface=self.screen, color="white", center=left_bones[0], radius=10)
+        pygame.draw.circle(surface=self.screen, color="white", center=right_bones[-1], radius=10)
 
 
         

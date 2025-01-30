@@ -146,11 +146,15 @@ class MainGame:
         
         while running:
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
             game_state, leader_board, player_lst, fruits_lst = gp.extract_json(self.share_data, graphic.screen)
             graphic.reg_players(player_lst)
             graphic.reg_fruits(fruits_lst)
 
-            graphic.screen.fill("black")
+            graphic.screen.fill("white")
 
             for player in graphic.player_lst:
                 player.body_draw()
