@@ -66,7 +66,6 @@ class Game:
         if player_input == "space":
             self.game_state = State.PLAYING
 
-
     def generate_apples(self) -> None:
         current_time = time.time()
 
@@ -97,7 +96,7 @@ class Game:
         self.player2.move_forward()
         self.player1.maintain_distance()
         self.player2.maintain_distance()
-        
+
         current_time = time.time()
 
         for i in range(2):
@@ -109,7 +108,6 @@ class Game:
                 elif i == 1 and self.player2.get_status() != "NORMAL":
                     self.player2.set_status("NORMAL")
                     self.prev_effect_time[i] = current_time
-                
 
         for i, apple in enumerate(self.apples):
             if self.player1.check_collision_with(apple):
@@ -128,23 +126,21 @@ class Game:
 
         self.apples = apples
 
-        if self.player1.check_collision_with(self.player2.segment):
-            if self.player2.get_status != "NORMAL":
-                return
-            self.player2.shorten_tail()  
-            self.player2.update_score(-30)
-            self.player1.update_score(30)
+        if self.player1.check_collision_with(self.player2):
+            if self.player2.get_status() != "NORMAL":
+                self.player2.shorten_tail()
+                self.player2.update_score(-30)
+                self.player1.update_score(30)
 
-        if self.player2.check_collision_with(self.player1.segment):
-            if self.player1.get_status != "NORMAL":
-                return
-            self.player1.shorten_tail() 
-            self.player1.update_score(-30)
-            self.player2.update_score(30)
+        if self.player2.check_collision_with(self.player1):
+            if self.player1.get_status() == "NORMAL":
+                self.player1.shorten_tail()
+                self.player1.update_score(-30)
+                self.player2.update_score(30)
 
         self.scoreboard[0] = self.player1.get_score()
         self.scoreboard[1] = self.player2.get_score()
-        
+
         self.player1.grow()
         self.player2.grow()
 
@@ -155,7 +151,7 @@ class Game:
             return
 
         self.generate_apples()
-        
+
         if player_id == 1:
             if player_input == "left":
                 self.player1.rotation_points(-5)
@@ -167,7 +163,6 @@ class Game:
             elif player_input == "right":
                 self.player2.rotation_points(5)
 
-
     def set_players_name(self, player_id: int, name: str) -> None:
         if player_id == 1:
             self.player1.set_name(name)
@@ -178,6 +173,7 @@ class Game:
         if state == "PLAYING":
             self.game_state = State.PLAYING
     # Access data
+
     def get_game_state(self) -> Dict:
         data = {
             "game": {
@@ -230,7 +226,7 @@ class Game:
             },
             "players": {
                 "player1": {
-                    "name" : self.player1.get_name(),
+                    "name": self.player1.get_name(),
                     "segments": list(zip(self.player1.get_segment_postion(), self.player1.get_segment_radius())),
                     "color": ["blue"] + ["green"] * (len(self.player1.get_segment_postion()) - 2) + ['orange' if self.player1.get_status() == "NORMAL" else 'green'],
                     "score": self.player1.get_score()

@@ -137,8 +137,6 @@ class Snake:
             radius = other.get_radius()
             
         elif isinstance(other, Snake):
-            print("I already eaten tail")
-            exit(1)
             x, y = other.get_segment_postion()[-1]
             radius = other.get_segment_radius()[-1]
 

@@ -4,7 +4,7 @@ from typing import Tuple
 class Apple:
     def __init__(self, position: Tuple[int, int]) -> None:
         self.position = position
-        self.score = 3
+        self.score = 5
         self.effect = "NORMAL"
         self.radius = 9
         self.color = "red"
