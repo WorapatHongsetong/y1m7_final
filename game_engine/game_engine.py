@@ -3,16 +3,17 @@ TODO:
     Player (snake)
         can bite other player tail make them shoter and decrease score
     Object (apple)
-        normal_apple: coin 
-        special_apple: can shoot lazer from the eyes
+        normal_apple: score 
+        golden_appel: more score 
+        lazer_apple: can shoot lazer from the eyes
 
     Game components:
         Game State:
-            Waiting  
+            Waiting -> waiting for players ready
             Playing
             Dead
             END
-        Scoreboard 
+        Scoreboard -> Show player scoreboard
 """
 from apple import *
 from player import Snake
