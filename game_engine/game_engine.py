@@ -55,19 +55,19 @@ class Game:
         self.apples = []
         self.prev_generate_time = time.time()
 
-    def waiting_state(self, 
-                      player1_input: str = None, 
-                      player2_input: str = None) -> None:
+    def waiting_state(self,
+                      player_id: int, 
+                      player_input: str = None) -> None:
         if self.game_state != State.WAITING:
             return
 
         # TODO: check player input here
         while self.ready_status != [True, True]:
-            if player1_input == "space":
-                self.ready_status[0] = True
-
-            if player2_input == "space":
-                self.ready_status[1] = True
+            if player_input == "space":
+                if player_id == 1:
+                    self.ready_status[0] = True
+                elif player_id == 2:
+                    self.ready_status[1] = True
 
         self.game_state = State.PLAYING
 
@@ -118,24 +118,26 @@ class Game:
         self.scoreboard[1] = self.player2.get_score()
 
     def playing_state(self,
-                      player1_mouse: Tuple[int, int] = None,
-                      player2_mouse: Tuple[int, int] = None) -> None:
+                      player_id: int,
+                      player_mouse: Tuple[int, int] = None) -> None:
         if self.game_state != State.PLAYING:
             return
-        
-        self.generate_apples()
 
-        # TODO: check collision with an apple
-        self.player1.rotate_to_target(player1_mouse)
-        self.player2.rotate_to_target(player2_mouse)
-        self.update()
-    
-    def set_players_name(self, name:str, player: int) -> None:
-        if player == 1:
-            self.player1.set_name(name)
-        if player == 2:
-            self.player2.set_name(name)
+        self.generate_apples()
         
+        if player_id == 1:
+            self.player1.rotate_to_target(player_mouse)
+        elif player_id == 2:
+            self.player2.rotate_to_target(player_mouse)
+
+        self.update()
+
+    def set_players_name(self, player_id: int, name: str) -> None:
+        if player_id == 1:
+            self.player1.set_name(name)
+        if player_id == 2:
+            self.player2.set_name(name)
+
     # Access data
     def get_game_state(self) -> Dict:
         data = {
