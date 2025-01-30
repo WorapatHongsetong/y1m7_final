@@ -74,11 +74,10 @@ class Server():
 
         while True:
             with self.lock:
-
                 # get user_input from queue
                 while not self.input_queue.empty():
                     user_input = self.input_queue.get()
-                    self.game_state = self.game_engine.get_game_state()
+                    self.game_state = self.game_engine.get_game_data()
 
                     # Waiting
                     if self.game_state.get("game").get("state") == 0:
@@ -86,18 +85,17 @@ class Server():
                             try:
                                 self.game_engine.set_players_name(
                                     name=user_input.get("name"),
-                                    player=user_input.get("id")
+                                    player_id=user_input.get("id")
                                 )
                             except Exception as e:
                                 logger.error("Error to set player name %s", e)
 
-                        self.game_engine.waiting_state(
-                            player_id=user_input.get("id"),
-                            player_input=user_input.get("input").get("keyboard_input")
-                        )
+                        if len(self.clients) == 2:
+                            self.game_engine.set_state("PLAYING")
 
                     # Playing
                     elif self.game_state.get("game").get("state") == 1:
+                        logger.warning("Game state %s", self.game_state.get("game").get("state"))
                         self.game_engine.playing_state(
                             player_id=user_input.get("id"),
                             player_mouse=user_input.get("input").get("mouse_pos")
@@ -148,21 +146,16 @@ class Server():
                         logger.info("%s has disconnected", client.id)
                         raise ConnectionError
 
-                logger.info("recevied data %s", data)
                 # When we have recieved some data
                 if buffer:
                     try:
-                        # Update data of Client
-                        logger.info(f"Upddating player {client.id}'s data")
-
                         json_data = json.loads(buffer.strip())
 
                         # put user input to queue
                         self.input_queue.put(json_data)
+                        
                         logger.info("Received data from %s: %s",
                                     client.id, json_data)
-
-                        logger.info(f"Player {client.id}'s data updated")
 
                     except json.JSONDecodeError as e:
                         logger.error("Error to decode JSON data: %s", e)

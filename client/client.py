@@ -24,6 +24,7 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+pygame.init()
 
 class Client:
     def __init__(self, name: str, player_id: int) -> None:
@@ -58,11 +59,15 @@ class MainGame:
     def send_message(self, server_socket: socket.socket) -> None:
         """ send a message to server """
 
+        while not self.ready_get_id.is_set():
+            continue
+
+        logger.warning("String Thread")
         try:
             while self.connecting_status:
                 mouse_pos = pygame.mouse.get_pos()
                 keys = pygame.key.get_pressed()
-                key_data = {}
+                key_data = {} 
 
                 if keys[pygame.K_SPACE]:
                     key_data['key'] = 'space'
@@ -76,8 +81,10 @@ class MainGame:
                     }
                 }
                 server_socket.sendall((json.dumps(data) + "\n").encode())
-                
-                self.clock.tick(60)
+
+                logger.info("Data sended!") 
+
+                threading.Event().wait(0.016)
 
         except Exception as e:
             logger.error("Error in send_message: %s", e)
@@ -138,6 +145,10 @@ class MainGame:
             logger.info("Existing Client...")
 
     def run_game(self) -> None:
+
+        while not self.ready_get_id.is_set():
+            continue
+
         SCREEN = (1200, 750)
 
         graphic = gp.GraphicEngine(SCREEN)
@@ -184,8 +195,6 @@ class MainGame:
                 target=self.receive_data, args=(sock,))
 
             receive_thread.start()
-            while not self.ready_get_id:  
-                continue
             send_thread.start()
             
             self.run_game()

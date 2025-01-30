@@ -168,6 +168,9 @@ class Game:
         if player_id == 2:
             self.player2.set_name(name)
 
+    def set_state(self, state: str) -> None:
+        if state == "PLAYING":
+            self.game_state = State.PLAYING
     # Access data
     def get_game_state(self) -> Dict:
         data = {
