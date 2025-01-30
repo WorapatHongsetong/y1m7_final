@@ -107,13 +107,17 @@ class GraphicEngine:
         pygame.quit() 
 
     def draw_score(self, player1score: int, player2score: int):
-            self.font = pygame.font.SysFont(None, 32)
-            img1 = self.font.render(f'SCORE : {player1score}', True, "green")
-            img2 = self.font.render(f'SCORE : {player2score}', True, "green")
+        self.font = pygame.font.SysFont(None, 32)
+        img1 = self.font.render(f'SCORE : {player1score}', True, "green")
+        img2 = self.font.render(f'SCORE : {player2score}', True, "green")
 
-            self.screen.blit(img1, (10, 10))
-            self.screen.blit(img2, (1000, 10))
-            pygame.display.update()
+        self.screen.blit(img1, (10, 10))
+        self.screen.blit(img2, (1000, 10))
+        pygame.display.update()
+
+    # def draw_score_board(self):
+    #     leader_board = []
+    #     for player in self.player_lst:
 
 
 
