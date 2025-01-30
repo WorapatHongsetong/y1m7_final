@@ -2,17 +2,10 @@ import numpy as np
 from typing import Tuple, List, Union
 import logging
 import pygame
-from apple import Apple
+from game_engine.apple import Apple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-
-"""
-TODO:
-    adding angle constant
-    edit the Snake and Testit
-"""
-
 
 class Snake:
     # Constant value
