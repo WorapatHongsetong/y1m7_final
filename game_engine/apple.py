@@ -22,6 +22,7 @@ class Apple:
 
 
 class GoldenApple(Apple):
+    # Immortal for a while
     def __init__(self, position: Tuple[int, int]) -> None:
         super().__init__(position)
         self.score = 10

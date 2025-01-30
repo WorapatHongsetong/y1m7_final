@@ -22,7 +22,8 @@ class Snake:
     def __init__(self,
                  head: List[int],
                  segment_num: int = 3,
-                 velocity: Union[int, float] = 5) -> None:
+                 velocity: Union[int, float] = 5,
+                 name: str="player") -> None:
         self.head = head
         self.segment = [[0, 0] for _ in range(segment_num)]
         self.segment_raduis = [20-i for i in range(segment_num+1)]
@@ -33,6 +34,7 @@ class Snake:
                                self.head[0] + self.segment_raduis[0]]
         
         self.score = 0
+        self.name = name
 
     def maintain_point(self,
                        point1: List[int],
@@ -141,6 +143,9 @@ class Snake:
     def set_head(self, pos: List[int]) -> None:
         self.head = pos        
     
+    def set_name(self, name: str) -> None:
+        self.name = name
+    
     # Access part
     def get_segment_postion(self) -> List[List[int]]:
         return [self.head] + self.segment
@@ -155,6 +160,8 @@ class Snake:
     def get_score(self) -> int:
         return self.score
 
+    def get_name(self) -> str:
+        return self.name
 ############### Testing Implement simple procedural animation ##############
 
 

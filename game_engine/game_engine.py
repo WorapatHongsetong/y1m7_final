@@ -2,10 +2,12 @@
 TODO:
     Player (snake)
         can bite other player tail make them shoter and decrease score
+        name: 
     Object (apple)
+        generate_apples:
         normal_apple: score 
         golden_appel: more score 
-        lazer_apple: can shoot lazer from the eyes
+        lazer_apple: can shoot lazer from the eyes <-- might not finish
 
     Game components:
         Game State:
@@ -53,7 +55,9 @@ class Game:
         self.apples = []
         self.prev_generate_time = time.time()
 
-    def waiting_state(self, player1_input: str = None, player2_input: str = None) -> None:
+    def waiting_state(self, 
+                      player1_input: str = None, 
+                      player2_input: str = None) -> None:
         if self.game_state != State.WAITING:
             return
 
@@ -123,7 +127,13 @@ class Game:
         self.player1.rotate_to_target(player1_mouse)
         self.player2.rotate_to_target(player2_mouse)
         self.update()
-
+    
+    def set_players_name(self, name:str, player: int) -> None:
+        if player == 1:
+            self.player1.set_name(name)
+        if player == 2:
+            self.player2.set_name(name)
+        
     # Access data
     def get_game_state(self) -> Dict:
         data = {
