@@ -17,8 +17,8 @@ TODO:
             END
         Scoreboard -> Show player scoreboard
 """
-from apple import *
-from player import Snake
+from game_engine.apple import *
+from game_engine.player import Snake
 from enum import Enum
 from typing import Dict, Tuple
 import time
