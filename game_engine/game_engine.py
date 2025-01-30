@@ -62,32 +62,32 @@ class Game:
             return
 
         # TODO: check player input here
-        while self.ready_status != [True, True]:
-            if player_input == "space":
-                if player_id == 1:
-                    self.ready_status[0] = True
-                elif player_id == 2:
-                    self.ready_status[1] = True
+        if player_input == "space":
+            if player_id == 1:
+                self.ready_status[0] = True
+            elif player_id == 2:
+                self.ready_status[1] = True
 
-        self.game_state = State.PLAYING
+        if all(self.ready_status):
+            self.game_state = State.PLAYING
 
     def generate_apples(self) -> None:
         current_time = time.time()
 
-        apple_types = [Apple, GoldenApple, LazerApple]
-        weight = [0.7, 0.1, 0.2]
-
         if current_time - self.prev_generate_time >= self.GENERATE_TIME:
+            self.prev_generate_time = current_time
 
             left_apples = self.APPLE_NUMS - len(self.apples)
-
-            if left_apples == 0:
+            if left_apples <= 0:
                 return
+
+            apple_types = [Apple, GoldenApple, LazerApple]
+            weight = [0.7, 0.1, 0.2]
 
             for _ in range(left_apples):
                 random_apple = np.random.choice(apple_types, p=weight)
-                rand_x, rand_y = np.random.randint(
-                    50, self.WIDTH - 50), np.random.randint(50, self.HEIGHT - 50)
+                rand_x = np.random.randint(50, self.WIDTH - 50)
+                rand_y = np.random.randint(50, self.HEIGHT - 50)
                 self.apples.append(random_apple(
                     position=(rand_x, rand_y)
                 ))
@@ -155,12 +155,12 @@ class Game:
         data = {
             "players": {
                 "player1": {
-                    "segments": zip(self.player1.get_segment_postion(), self.player1.get_segment_radius()),
+                    "segments": list(zip(self.player1.get_segment_postion(), self.player1.get_segment_radius())),
                     "color": ["blue"] + ["green" for _ in range(len(self.player1.get_segment_postion()))],
                     "score": self.player1.get_score()
                 },
                 "player2": {
-                    "segments": zip(self.player2.get_segment_postion(), self.player2.get_segment_radius()),
+                    "segments": list(zip(self.player2.get_segment_postion(), self.player2.get_segment_radius())),
                     "color": ["red"] + ["green" for _ in range(len(self.player2.get_segment_postion()))],
                     "score": self.player2.get_score()
                 }
@@ -170,23 +170,42 @@ class Game:
         return data
 
     def get_fruit_data(self) -> Dict:
-        position = []
-
-        for apple in self.apples:
-            res = []
-            res.append(apple.get_position()[0])
-            res.append(apple.get_position()[1])
-            res.append(apple.get_effect())
-            position.append(res)
 
         data = {
-            "friuts": {
-                "position": position,
+            "fruits": {
+                "position": [[apple.get_position()[0], apple.get_position()[1], apple.get_effect()] for apple in self.apples],
                 "score": [apple.get_score() for apple in self.apples]
             }
         }
 
         return data
+
+    def get_game_data(self) -> Dict:
+        return {
+            "game": {
+                "leaderboard": [
+                    ["player1", self.scoreboard[0]],
+                    ["player2", self.scoreboard[1]]
+                ],
+                "state": self.game_state
+            },
+            "players": {
+                "player1": {
+                    "segments": list(zip(self.player1.get_segment_postion(), self.player1.get_segment_radius())),
+                    "color": ["blue"] + ["green"] * len(self.player1.get_segment_postion()),
+                    "score": self.player1.get_score()
+                },
+                "player2": {
+                    "segments": list(zip(self.player2.get_segment_postion(), self.player2.get_segment_radius())),
+                    "color": ["red"] + ["green"] * len(self.player2.get_segment_postion()),
+                    "score": self.player2.get_score()
+                }
+            },
+            "fruits": {
+                "position": [[apple.get_position()[0], apple.get_position()[1], apple.get_effect()] for apple in self.apples],
+                "score": [apple.get_score() for apple in self.apples]
+            }
+        }
 
 
 if __name__ == "__main__":

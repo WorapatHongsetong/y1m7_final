@@ -35,7 +35,7 @@ class Snake:
                        prev_angle: float = None) -> List[int]:
 
         dx, dy = point2[0] - point1[0], point2[1] - point1[1]
-        current_distance = np.sqrt(dx**2 + dy**2)
+        current_distance = np.hypot(dx, dy) 
 
         if current_distance != self.SEGMENT_SPACE:
             scale = self.SEGMENT_SPACE / current_distance
@@ -124,7 +124,7 @@ class Snake:
         radius = other.get_radius()
         head_x, head_y = self.head
         
-        distance = np.sqrt(np.power(head_x - x) + np.power(head_y - y))
+        distance = np.sqrt((head_x - x)**2 + (head_y - y)**2)
         
         return distance < radius + self.segment_raduis[0]
 

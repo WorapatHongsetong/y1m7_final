@@ -83,16 +83,14 @@ class Server():
 
                     # Waiting
                     if self.game_state.get("game").get("state") == 0:
-                        try:
-                            if user_input.get("name", None) == None:
-                                continue
-
-                            self.game_engine.set_players_name(
-                                name=user_input.get("name"),
-                                player=user_input.get("id")
-                            )
-                        except Exception as e:
-                            logger.error("Error to set player name %s", e)
+                        if user_input.get("name"):
+                            try:
+                                self.game_engine.set_players_name(
+                                    name=user_input.get("name"),
+                                    player=user_input.get("id")
+                                )
+                            except Exception as e:
+                                logger.error("Error to set player name %s", e)
 
                         self.game_engine.waiting_state(
                             player_id=user_input.get("id"),
@@ -122,11 +120,7 @@ class Server():
 
                     try:
                         # TODO: Change data format
-                        data = {
-                            self.game_engine.get_game_state(),
-                            self.game_engine.get_player_data(),
-                            self.game_engine.get_fruit_data()
-                        } 
+                        data = self.game_engine.get_game_data()
 
                         client.send_data(data)
                         logger.info("Send game_state to player")

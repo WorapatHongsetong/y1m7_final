@@ -36,6 +36,8 @@ class MainGame:
     def __init__(self) -> None:
         pygame.init()
 
+        self.clock = pygame.time.Clock()
+
         self.connecting_status = True
         self.is_first_join = True
         self.share_data = {}
@@ -52,20 +54,24 @@ class MainGame:
                 keys = pygame.key.get_pressed()
                 key_data = {}
 
+                if keys[pygame.K_SPACE]:
+                    key_data['key'] = 'space'
+
                 if key_data:  # If there's any key pressed
                     data = {
                         'id': self.client.id,
                         "name": self.client.name,
                         "input": {
-                            "keyboard_input": key_data['key'],
+                            "keyboard_input": key_data.get('key', None),
                             "mouse_pos": mouse_pos
                         }
                     }
                     server_socket.sendall((json.dumps(data) + "\n").encode())
-                pygame.time.delay(100)  # Small delay to reduce network load
+                
+                self.clock.tick(60)
 
         except Exception as e:
-            print(f"Error in send_key_presses: {e}")
+            logger.error("Error in send_key_presses: %s", e)
             self.connecting_status = False
 
     def receive_data(self, sock: socket.socket) -> None:
@@ -109,7 +115,8 @@ class MainGame:
                                 logger.error("Error updating data: %s", e)
 
                         except json.JSONDecodeError as e:
-                            logger.error("Failed to decode JSON: %s, message: %s", e, json_message)
+                            logger.error(
+                                "Failed to decode JSON: %s, message: %s", e, json_message)
 
         except (ConnectionAbortedError, OSError):
             logger.info("Socket Closed")
@@ -126,7 +133,7 @@ class MainGame:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.connect((self.HOST, self.PORT))
             print("Connected to server")
-            
+
             name = input("Enter the name:")
 
             # Thread for send a message
