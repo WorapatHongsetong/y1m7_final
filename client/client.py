@@ -54,12 +54,14 @@ class MainGame:
 
                 if key_data:  # If there's any key pressed
                     data = {
-                        'id': game.id,
-                        "key_pressed": key_data['key']
+                        'id': self.client.id,
+                        "name": self.client.name,
+                        "input": {
+                            "keyboard_input": key_data['key'],
+                            "mouse_pos": mouse_pos
+                        }
                     }
                     server_socket.sendall((json.dumps(data) + "\n").encode())
-                    logger.info(f"Player {game.id} pressed: {key_data['key']}")
-
                 pygame.time.delay(100)  # Small delay to reduce network load
 
         except Exception as e:
@@ -124,6 +126,8 @@ class MainGame:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.connect((self.HOST, self.PORT))
             print("Connected to server")
+            
+            name = input("Enter the name:")
 
             # Thread for send a message
             send_thread = threading.Thread(
@@ -142,4 +146,5 @@ class MainGame:
 
 
 if __name__ == "__main__":
-    pass
+    game = MainGame()
+    game.connect_to_server()

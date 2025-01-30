@@ -122,7 +122,13 @@ class Server():
 
                     try:
                         # TODO: Change data format
-                        client.send_data()
+                        data = {
+                            self.game_engine.get_game_state(),
+                            self.game_engine.get_player_data(),
+                            self.game_engine.get_fruit_data()
+                        } 
+
+                        client.send_data(data)
                         logger.info("Send game_state to player")
 
                     except Exception as e:
