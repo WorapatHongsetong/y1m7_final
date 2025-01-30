@@ -1,4 +1,5 @@
 import pygame
+import random
 import math
 import pprint
 
@@ -87,7 +88,7 @@ class GraphicEngine:
     def reg_fruits(self, fruit_lst: Fruits) -> None:
         self.fruits = fruit_lst
 
-    def update(self) -> None:
+    def run(self) -> None:
         running = True
         while running:
             self.screen.fill("black")
@@ -104,6 +105,18 @@ class GraphicEngine:
             self.clock.tick(60)
 
         pygame.quit() 
+
+    def draw_score(self, player1score: int, player2score: int):
+            self.font = pygame.font.SysFont(None, 32)
+            img1 = self.font.render(f'SCORE : {player1score}', True, "green")
+            img2 = self.font.render(f'SCORE : {player2score}', True, "green")
+
+            self.screen.blit(img1, (10, 10))
+            self.screen.blit(img2, (1000, 10))
+            pygame.display.update()
+
+
+
 
 def extract_json(json_data: dict, screen: pygame.surface):
     DATA = json_data
@@ -126,7 +139,7 @@ def extract_json(json_data: dict, screen: pygame.surface):
 if __name__ == "__main__":
     GAME = GraphicEngine((800,600))
 
-    EXAMPLE_CHAIN = [(100, 150, 50), (200, 170, 45), (300, 180, 35), (400, 200, 20)]
+    EXAMPLE_CHAIN = ["name", [((100, 15), 50), ((200, 170), 45), ((300, 180), 35), ((400, 200), 20)], ["red", "blue"], None]
     PLAYER1 = PlayerGraphicBasic(EXAMPLE_CHAIN, GAME.screen)
     PLAYER_LST = [PLAYER1]
     FRUITS_LST = Fruits([(6, 9), (20, 12), (32, 64)], GAME.screen)

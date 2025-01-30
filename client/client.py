@@ -173,6 +173,8 @@ class MainGame:
             if graphic.fruits:
                 graphic.fruits.body_draw()
 
+            graphic.draw_score(1, 2)
+
             pygame.display.flip()
             graphic.clock.tick(60)
         
