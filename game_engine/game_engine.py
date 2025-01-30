@@ -114,6 +114,14 @@ class Game:
 
         self.apples = apples
 
+        if self.player1.check_collision_with(self.player2.segment[-1]):
+            self.player2.shorten_tail()  
+            self.player2.update_score(-30)
+
+        if self.player2.check_collision_with(self.player1.segment[-1]):
+            self.player1.shorten_tail() 
+            self.player1.update_score(-30)
+
         self.scoreboard[0] = self.player1.get_score()
         self.scoreboard[1] = self.player2.get_score()
 

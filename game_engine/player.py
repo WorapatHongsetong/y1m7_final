@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Self
 import logging
 import pygame
 from game_engine.apple import Apple
@@ -19,7 +19,7 @@ class Snake:
                  name: str="player") -> None:
         self.head = head
         self.segment = [[0, 0] for _ in range(segment_num)]
-        self.segment_raduis = [20-i for i in range(segment_num+1)]
+        self.segment_raduis = [max(20-i, 5) for i in range(segment_num+1)]
 
         self.velocity = velocity
         self.direction_to_target = [0, 0]
@@ -28,6 +28,8 @@ class Snake:
         
         self.score = 0
         self.name = name
+        
+        self.grow_thershold = 30
 
     def maintain_point(self,
                        point1: List[int],
@@ -119,14 +121,42 @@ class Snake:
 
         self.rotation_points(np.degrees(diff_angle))
 
-    def check_collision_with(self, other: Apple) -> bool:
-        x, y = other.get_position()
-        radius = other.get_radius()
+    def shorten_tail(self) -> None:
+        if len(self.segment) > 3:
+            self.segment.pop()
+            self.segment_raduis.pop()
+            self.grow_thershold -= 30
+
+    def check_collision_with(self, other: Union[Apple, Self]) -> bool:
         head_x, head_y = self.head
-        
-        distance = np.sqrt((head_x - x)**2 + (head_y - y)**2)
-        
+
+        if isinstance(other, Apple):
+            x, y = other.get_position()
+            radius = other.get_radius()
+            
+        elif isinstance(other, Snake):
+            x, y = other.get_segment_postion()[-1]
+            radius = other.get_segment_radius()[-1]
+
+        distance = np.hypot((head_x - x), (head_y - y))
         return distance < radius + self.segment_raduis[0]
+
+    def calculate_segment_radius(self, index: int) -> None:
+        head_radius = 20  
+        radius_decrement = 1 
+        return max(head_radius - index * radius_decrement, 5) 
+
+    def grow(self) -> None:
+        if self.score >= self.grow_thershold:
+            self.grow_thershold += 30
+
+            last_segment = self.segment[-1]
+            new_segment = [last_segment[0] - self.SEGMENT_SPACE, last_segment[1]]
+            
+            self.segment.append(new_segment)
+            self.segment_raduis.append(self.calculate_segment_radius(len(self.segment)))
+
+            self.grow() 
 
     # Update part
     def update_score(self, score: int) -> None:
@@ -173,6 +203,7 @@ class Testing:
 
     def run(self) -> None:
         running = True
+        prev_time = 0
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -182,7 +213,7 @@ class Testing:
             self.player.move_forward()
             self.player.rotate_to_target(mouse_pos)
             self.player.maintain_distance()
-
+          
             # Render everything
             self.screen.fill((0, 0, 0))
             self.draw()
@@ -202,7 +233,9 @@ class Testing:
                                    segment_position[i][1]))),
                                radius=segment_radius[i])
 
-
+import time
 if __name__ == "__main__":
     test = Testing()
     test.run()
+    
+    # Test grow
