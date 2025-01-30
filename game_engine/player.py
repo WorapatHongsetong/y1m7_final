@@ -126,7 +126,6 @@ class Snake:
         if len(self.segment) > 3:
             self.segment.pop()
             self.segment_raduis.pop()
-            self.grow_thershold -= 30
             self.score -= 30
 
     def check_collision_with(self, other: Union[Apple, Self]) -> bool:
