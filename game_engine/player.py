@@ -236,7 +236,7 @@ class Testing:
         segment_position = self.player.get_segment_postion()
         segment_radius = self.player.get_segment_radius()
 
-        for i in range(len(segment_radius)):
+        for i in range(len(segment_radius)-1):
             pygame.draw.circle(self.screen,
                                (0, 255, 0),
                                ((int(segment_position[i][0]), int(

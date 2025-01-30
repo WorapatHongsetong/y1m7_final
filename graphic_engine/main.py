@@ -21,45 +21,57 @@ def bezier(points, num_points=100):
 class PlayerGraphicBasic:
     def __init__(self, chain_position: list[tuple[float, float, float]], screen: pygame.Surface, color: str = "aliceblue") -> None:        
         self.screen = screen
-        self.name = chain_position[0]
-        self.skeleton = chain_position[1]
-        self.color = chain_position[2][0]
-        self.score = chain_position[3]
-        print(self.skeleton)
+        # self.name = chain_position[0]
+        self.skeleton = chain_position
+        # self.color = chain_position[2][0]
+        # self.score = chain_position[3]
+        # print(self.skeleton)
 
-    def body_draw(self):
+    def body_draw(self, color):
+        self.color = color
         skeleton_vectors = []
         left_bones = []
         right_bones = []
         for i, bone in enumerate(self.skeleton):
             print(bone)
             bone = [bone[0][0], bone[0][1], bone[1]]
-            pygame.draw.circle(surface=self.screen, color=self.color, center=(bone[0], bone[1]), radius=bone[2])
-            pygame.draw.circle(surface=self.screen, color="black", center=(bone[0], bone[1]), radius=bone[2] - 1)
+            # pygame.draw.circle(surface=self.screen, color=self.color, center=(bone[0], bone[1]), radius=bone[2])
+            # pygame.draw.circle(surface=self.screen, color="black", center=(bone[0], bone[1]), radius=bone[2] - 1)
 
-            if i <= len(self.skeleton) - 2:
-                if (self.skeleton[i+1][0][0]) == 0:
+            if i == 0:
+                if self.skeleton[1][0][0]-bone[0] == 0:
                     direction = math.pi/2
                 else:
-                    direction = math.atan(self.skeleton[i+1][0][1] - bone[1])/(self.skeleton[i+1][0][0])
+                    direction = math.atan((self.skeleton[1][0][1]-bone[1])/(self.skeleton[1][0][0]-bone[0]))
+                pygame.draw.line(surface=self.screen, color="white", start_pos=self.skeleton[1][0], end_pos=(bone[0], bone[1]), width=4)
 
-            bone_left = (math.cos(direction + math.pi/2) * bone[2] + bone[0],
-                         math.sin(direction + math.pi/2) * bone[2] + bone[1])
+            if i <= len(self.skeleton) - 2:
+                if (self.skeleton[i+1][0][0]-bone[1]) == 0:
+                    direction = math.pi/2
+                else:
+                    direction = math.atan(self.skeleton[i+1][0][1] - bone[0])/(self.skeleton[i+1][0][0]-bone[1])
+
+            bone_left = (-math.cos(direction + math.pi/2) * bone[2] + bone[0],
+                         -math.sin(direction + math.pi/2) * bone[2] + bone[1])
             left_bones.append(bone_left)
-            bone_right = (math.cos(direction - math.pi/2) * bone[2] + bone[0],
-                          math.sin(direction - math.pi/2) * bone[2] + bone[1])
+            bone_right = (-math.cos(direction - math.pi/2) * bone[2] + bone[0],
+                          -math.sin(direction - math.pi/2) * bone[2] + bone[1])
             right_bones.append(bone_right)
 
-        left_bones = bezier(left_bones)
-        right_bones = bezier(right_bones)
-        right_bones.reverse()
+        left_bones_b = bezier(left_bones)
+        right_bones_b = bezier(right_bones)
 
-        pygame.draw.lines(surface=self.screen, color=self.color , closed=True, points=left_bones + right_bones)
-        # pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=right_bones)
-        pygame.draw.circle(surface=self.screen, color="black", center=left_bones[0], radius=15)
-        pygame.draw.circle(surface=self.screen, color="black", center=right_bones[-1], radius=15)
-        pygame.draw.circle(surface=self.screen, color="white", center=left_bones[0], radius=10)
-        pygame.draw.circle(surface=self.screen, color="white", center=right_bones[-1], radius=10)
+        # for point in left_bones_b + right_bones_b:
+        #     pygame.draw.circle(surface=self.screen, color="white", center=point, radius=5)
+
+        pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=left_bones_b, width=5)
+        pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=right_bones_b, width=5)
+        # pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=left_bones, width=5)
+        # pygame.draw.lines(surface=self.screen, color=self.color , closed=False, points=right_bones, width=5)
+        pygame.draw.circle(surface=self.screen, color="white", center=left_bones[1], radius=11)
+        pygame.draw.circle(surface=self.screen, color="white", center=right_bones[1], radius=11)
+        pygame.draw.circle(surface=self.screen, color="black", center=left_bones[1], radius=6)
+        pygame.draw.circle(surface=self.screen, color="black", center=right_bones[1], radius=6)
 
 
         
@@ -90,9 +102,9 @@ class GraphicEngine:
     def update(self) -> None:
         running = True
         while running:
-            self.screen.fill("black")
+            self.screen.fill("white")
 
-            for player in self.player_lst:
+            for player in self.playerblack:
                 player.body_draw()
             
             if self.fruits:
