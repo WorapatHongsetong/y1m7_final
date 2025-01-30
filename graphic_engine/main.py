@@ -21,19 +21,27 @@ def bezier(points, num_points=100):
 class PlayerGraphicBasic:
     def __init__(self, chain_position: list[tuple[float, float, float]], screen: pygame.Surface, color: str = "aliceblue") -> None:        
         self.screen = screen
-        self.skeleton = chain_position
-        self.color = color
+        self.name = chain_position[0]
+        self.skeleton = chain_position[1]
+        self.color = chain_position[2][0]
+        self.score = chain_position[3]
+        print(self.skeleton)
 
     def body_draw(self):
         skeleton_vectors = []
         left_bones = []
         right_bones = []
         for i, bone in enumerate(self.skeleton):
+            print(bone)
+            bone = [bone[0][0], bone[0][1], bone[1]]
             pygame.draw.circle(surface=self.screen, color=self.color, center=(bone[0], bone[1]), radius=bone[2])
             pygame.draw.circle(surface=self.screen, color="black", center=(bone[0], bone[1]), radius=bone[2] - 1)
 
             if i <= len(self.skeleton) - 2:
-                direction = math.atan(self.skeleton[i+1][1] - bone[1])/(self.skeleton[i+1][0])
+                if (self.skeleton[i+1][0][0]) == 0:
+                    direction = math.pi/2
+                else:
+                    direction = math.atan(self.skeleton[i+1][0][1] - bone[1])/(self.skeleton[i+1][0][0])
 
             bone_left = (math.cos(direction + math.pi/2) * bone[2] + bone[0],
                          math.sin(direction + math.pi/2) * bone[2] + bone[1])
@@ -97,20 +105,20 @@ class GraphicEngine:
 
         pygame.quit() 
 
-def extract_json(json_data: dict):
+def extract_json(json_data: dict, screen: pygame.surface):
     DATA = json_data
     pprint.pprint(DATA)
     print(type(DATA))
-    game_leader_board = DATA.get("game").get("leaderboard")
+    game_leader_board = DATA.get("game")
+    print("113", type(game_leader_board))
+    game_leader_board = game_leader_board.get("leaderboard")
     game_state = DATA.get("game").get("state")
 
     players_lst = []
-    for player in DATA.get("players").key():
-        players_lst.append([player.get("name"),
-                            player.get("segments"),
-                            player.get("color"),
-                            player.get("score")])
-    
+    for player in DATA.get("players"):
+        p1 = DATA.get("players")
+        players_lst.append(PlayerGraphicBasic([p1.get(player).get("name"), p1.get(player).get("segments"),p1.get(player).get("color"),p1.get(player).get("score")],
+                                              screen=screen))
     fruit_pos = DATA.get("fruits").get("position")
 
     return game_state, game_leader_board, players_lst, fruit_pos

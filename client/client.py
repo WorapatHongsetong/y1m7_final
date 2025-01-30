@@ -146,7 +146,7 @@ class MainGame:
         
         while running:
 
-            game_state, leader_board, player_lst, fruits_lst = gp.extract_json(self.share_data)
+            game_state, leader_board, player_lst, fruits_lst = gp.extract_json(self.share_data, graphic.screen)
             graphic.reg_players(player_lst)
             graphic.reg_fruits(fruits_lst)
 

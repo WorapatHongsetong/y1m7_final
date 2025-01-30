@@ -223,13 +223,13 @@ class Game:
                 "player1": {
                     "name" : self.player1.get_name(),
                     "segments": list(zip(self.player1.get_segment_postion(), self.player1.get_segment_radius())),
-                    "color": ["blue"] + ["green"] * (len(self.player1.get_segment_postion()) - 1) + ['orange' if self.player1.get_status() == "NORMAL" else 'green'],
+                    "color": ["blue"] + ["green"] * (len(self.player1.get_segment_postion()) - 2) + ['orange' if self.player1.get_status() == "NORMAL" else 'green'],
                     "score": self.player1.get_score()
                 },
                 "player2": {
                     "name": self.player2.get_name(),
                     "segments": list(zip(self.player2.get_segment_postion(), self.player2.get_segment_radius())),
-                    "color": ["red"] + ["green"] * (len(self.player2.get_segment_postion()) - 1) + ['orange' if self.player2.get_status() == "NORMAL" else 'green'],
+                    "color": ["red"] + ["green"] * (len(self.player2.get_segment_postion()) - 2) + ['orange' if self.player2.get_status() == "NORMAL" else 'green'],
                     "score": self.player2.get_score()
                 }
             },
