@@ -18,7 +18,7 @@ class Snake:
                  velocity: Union[int, float] = 5,
                  name: str="player") -> None:
         self.head = head
-        self.segment = [[0, 0] for _ in range(segment_num)]
+        self.segment = [[head[0], head[1]-i*self.SEGMENT_SPACE] for i in range(1, segment_num)]
         self.segment_raduis = [max(20-i, 5) for i in range(segment_num+1)]
 
         self.velocity = velocity
