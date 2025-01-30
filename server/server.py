@@ -1,7 +1,6 @@
 import socket
 import json
 import threading
-from math import pi
 import queue
 from game_engine.game_engine import Game
 
@@ -17,7 +16,7 @@ PORT = 5505
 # logging
 logger = logging.getLogger()
 filehandler = RotatingFileHandler("./logs/server.log",
-                                  mode="a",
+                                  mode="w",
                                   maxBytes=1*1024*1024)
 filehandler.setLevel(logging.INFO)
 
@@ -42,7 +41,7 @@ class Client:
             self.client_socket.sendall((json_form + '\n').encode())
 
         except Exception as e:
-            logging.error("error to update user: %s", e)
+            logging.error("error to send data: %s", e)
 
 
 class Server():
@@ -89,6 +88,7 @@ class Server():
                                     name=user_input.get("name"),
                                     player=user_input.get("id")
                                 )
+                                client.ready_event.set()  # Send signal to be ready
                             except Exception as e:
                                 logger.error("Error to set player name %s", e)
 
@@ -143,8 +143,6 @@ class Server():
             client.client_socket.send(
                 (json.dumps(id_dict) + '\n').encode('utf-8'))
 
-            client.ready_event.set()  # Send signal to be ready
-
             # recieve data parts
             while True:
                 buffer = b""
@@ -156,9 +154,10 @@ class Server():
                             break
                     else:
                         print(f"{client.id} has disconnected")
-                        logger.info("%s has disconnected", args=(client.id))
+                        logger.info("%s has disconnected", client.id)
                         raise ConnectionError
 
+                logger.info("recevied data %s", data)
                 # When we have recieved some data
                 if buffer:
                     try:

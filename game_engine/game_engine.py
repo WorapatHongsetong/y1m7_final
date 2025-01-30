@@ -187,7 +187,7 @@ class Game:
                     ["player1", self.scoreboard[0]],
                     ["player2", self.scoreboard[1]]
                 ],
-                "state": self.game_state
+                "state": self.game_state.value
             },
             "players": {
                 "player1": {

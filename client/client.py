@@ -16,7 +16,7 @@ logger = logging.getLogger("GameClientLogger")
 logger.setLevel(logging.DEBUG)
 
 log_file_path = log_directory + "/" + log_file
-handler = RotatingFileHandler(log_file_path, maxBytes=max_log_size)
+handler = RotatingFileHandler(log_file_path, maxBytes=max_log_size, mode="w")
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 
@@ -24,9 +24,15 @@ logger.addHandler(handler)
 
 
 class Client:
-    def __init__(self, name: str, id: int) -> None:
-        self.id = id
+    def __init__(self, name: str, player_id: int) -> None:
+        self.id = player_id 
         self.name = name
+    
+    def get_id(self) -> int:
+        return self.id
+
+    def get_name(self) -> str:
+        return self.name
 
 
 class MainGame:
@@ -44,6 +50,8 @@ class MainGame:
         self.ready_get_id = threading.Event()
 
         self.client = None
+        
+        self.enter_name = ""
 
     def send_message(self, server_socket: socket.socket) -> None:
         """ send a message to server """
@@ -57,16 +65,15 @@ class MainGame:
                 if keys[pygame.K_SPACE]:
                     key_data['key'] = 'space'
 
-                if key_data:  # If there's any key pressed
-                    data = {
-                        'id': self.client.id,
-                        "name": self.client.name,
-                        "input": {
-                            "keyboard_input": key_data.get('key', None),
-                            "mouse_pos": mouse_pos
-                        }
+                data = {
+                    'id': self.client.get_id(),
+                    "name": self.client.get_name(),
+                    "input": {
+                        "keyboard_input": key_data.get('key', None),
+                        "mouse_pos": mouse_pos
                     }
-                    server_socket.sendall((json.dumps(data) + "\n").encode())
+                }
+                server_socket.sendall((json.dumps(data) + "\n").encode())
                 
                 self.clock.tick(60)
 
@@ -90,16 +97,18 @@ class MainGame:
                         print("Connection lost!")
                         self.connecting_status = False
                         break
+                
 
                 # Process each JSON object separated by '\n'
                 for json_message in message_received.split(b"\n"):
                     if json_message.strip():  # Skip empty lines
                         try:
                             json_data = json.loads(json_message)
-
+                            
                             # First join: create a Client object
                             if self.is_first_join:
-                                self.client = Client(json_data.get("id"))
+                                self.client = Client(player_id=json_data.get("id"),
+                                                      name=self.enter_name)
                                 self.is_first_join = False
                                 continue
 
@@ -113,6 +122,7 @@ class MainGame:
                                 self.ready_get_id.set()
                             except Exception as e:
                                 logger.error("Error updating data: %s", e)
+                                logger.info(self.share_data)
 
                         except json.JSONDecodeError as e:
                             logger.error(
@@ -126,7 +136,10 @@ class MainGame:
             logger.info("Existing Client...")
 
     def run_game(self) -> None:
-        pass
+        
+        # Just a dummy while loop You can delete this
+        while True:
+            pass
 
     def connect_to_server(self) -> None:
         """ Open socket to connect the server """
@@ -134,7 +147,7 @@ class MainGame:
             sock.connect((self.HOST, self.PORT))
             print("Connected to server")
 
-            name = input("Enter the name:")
+            self.enter_name = input("Enter the name:")
 
             # Thread for send a message
             send_thread = threading.Thread(
@@ -142,11 +155,11 @@ class MainGame:
             receive_thread = threading.Thread(
                 target=self.receive_data, args=(sock,))
 
-            # start Thread
-            send_thread.start()
             receive_thread.start()
-
-            # main_game
+            while not self.ready_get_id:  
+                continue
+            send_thread.start()
+            
             self.run_game()
 
         print("Client Closed")
