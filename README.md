@@ -18,8 +18,8 @@
 ---------------------------
 
 Features:
-- Multiplayer games (On same device)
-- 
+- 2 players games (On same device).
+- Use (WASD) and (arrowkeys) for Player1 and Player2.
 - Players gains score by eating fruits and goes longer.
 - Players can bite others by touching other’s tails.
 - Players can be bitten and lose their lenght.
@@ -32,4 +32,4 @@ Gameplay:
 - Apples have different types:
   - Normal Apple: add only score
   - Golden Apple: more score and make them immortal for a while
-- Player can be die when player’s segment is less than 3
+- Player shortest lenght is 3 segments
