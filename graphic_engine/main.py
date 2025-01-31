@@ -42,14 +42,14 @@ class PlayerGraphicBasic:
                 if self.skeleton[1][0][0]-bone[0] == 0:
                     direction = math.pi/2
                 else:
-                    direction = math.atan((self.skeleton[1][0][1]-bone[1])/(self.skeleton[1][0][0]-bone[0]))
+                    direction = math.atan2((self.skeleton[1][0][1]-bone[1]), (self.skeleton[1][0][0]-bone[0]))
                 pygame.draw.line(surface=self.screen, color="white", start_pos=self.skeleton[1][0], end_pos=(bone[0], bone[1]), width=4)
 
             if i <= len(self.skeleton) - 2:
                 if (self.skeleton[i+1][0][0]-bone[1]) == 0:
                     direction = math.pi/2
                 else:
-                    direction = math.atan(self.skeleton[i+1][0][1] - bone[0])/(self.skeleton[i+1][0][0]-bone[1])
+                    direction = math.atan2((self.skeleton[i+1][0][1] - bone[0]), (self.skeleton[i+1][0][0]-bone[1]))
 
             bone_left = (-math.cos(direction + math.pi/2) * bone[2] + bone[0],
                          -math.sin(direction + math.pi/2) * bone[2] + bone[1])

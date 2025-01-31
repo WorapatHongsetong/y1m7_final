@@ -28,9 +28,7 @@ class MainGame():
                 self.game_engine.waiting_state(player_input="space")
             
             elif self.game_data.get("game").get("state") == 1:
-                user_input = None
 
-                
                 if keys[pygame.K_a]:
                     self.game_engine.playing_state(player_id=1, player_input="left")
                 if keys[pygame.K_d]:
@@ -41,11 +39,10 @@ class MainGame():
                     self.game_engine.playing_state(player_id=2, player_input="right")
                 self.game_engine.update()
 
-            print(self.game_data)
             # Render everything
             self.draw()
             pygame.display.flip()
-            self.clock.tick(30)
+            self.clock.tick(60)
 
         pygame.quit()
 
