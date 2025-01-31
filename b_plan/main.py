@@ -1,6 +1,8 @@
 from game_engine.game_engine import *
 from graphic_engine import main as gp
 import pygame
+from pprint import pprint
+from analytic_tool import data_tool as dt
 
 class MainGame():
     WIDTH, HEIGHT = 1200, 750 
@@ -41,8 +43,10 @@ class MainGame():
                     self.game_engine.playing_state(player_id=2, player_input="right")
                 self.game_engine.update()
 
-            print(self.game_data)
-            # Render everything
+            pprint(self.game_data)
+
+            #dumping data
+
             self.draw()
             pygame.display.flip()
             self.clock.tick(30)
@@ -103,9 +107,17 @@ class MainGame():
         self.screen.blit(score2, (1000, 10))
 
         if self.game_data.get("game").get("state") == 0:
-           waiting = font.render("Press ENTER to start", True, "white") 
+           waiting = font.render("Press SPACE to start", True, "white") 
            self.screen.blit(waiting, (500, 500))
 
+        # # dumping data
+        # t = time.time()
+        # player1spacetime = [*player1_segments[0]] + [t]
+        # player2spacetime = [*player2_segments[0]] + [t]
+
+        # plot1 = dt.Plotter()
+        # plot1.plot_movement(player1spacetime=player1spacetime, player2spacetime=player2spacetime)
+        # plot1.draw()
 
 if __name__ == "__main__":
     game = MainGame()
