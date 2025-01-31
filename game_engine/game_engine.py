@@ -97,6 +97,7 @@ class Game:
         self.player1.maintain_distance()
         self.player2.maintain_distance()
 
+
         current_time = time.time()
 
         for i in range(2):
