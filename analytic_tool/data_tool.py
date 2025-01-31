@@ -11,22 +11,11 @@ class Plotter:
             stored_data1 = []
         if stored_data2 is None:
             stored_data2 = []
-
-        stored_data1.append(player1spacetime)
-        stored_data2.append(player2spacetime)
-
-        stored_data_array1 = np.array(stored_data1)
-        stored_data_array2 = np.array(stored_data2)
-
-        x1 = stored_data_array1[:, 0]
-        y1 = stored_data_array1[:, 1]
-        z1 = stored_data_array1[:, 2]
+        x1, y1, z1 = player1spacetime[0], player1spacetime[1], player1spacetime[2]
 
         self.ax.scatter(x1, y1, z1, c='b', marker='o', label='Player 1')
 
-        x2 = stored_data_array2[:, 0]
-        y2 = stored_data_array2[:, 1]
-        z2 = stored_data_array2[:, 2]
+        x2, y2, z2 = player2spacetime[0], player2spacetime[1], player2spacetime[2]
 
         self.ax.scatter(x2, y2, z2, c='r', marker='o', label='Player 2')
 
@@ -36,7 +25,7 @@ class Plotter:
 
         self.ax.legend()
 
-        return stored_data1
+        return stored_data1, stored_data2
 
     def draw(self):
         plt.show()

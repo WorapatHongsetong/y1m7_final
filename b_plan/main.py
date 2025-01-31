@@ -3,6 +3,7 @@ from graphic_engine import main as gp
 import pygame
 from pprint import pprint
 from analytic_tool import data_tool as dt
+import os
 
 class MainGame():
     WIDTH, HEIGHT = 1200, 750 
@@ -45,13 +46,30 @@ class MainGame():
 
             pprint(self.game_data)
 
-            #dumping data
 
             self.draw()
+            # self.data_dump()
+            
             pygame.display.flip()
             self.clock.tick(30)
 
         pygame.quit()
+
+    def data_dump(self):
+        self.game_data = self.game_engine.get_game_data()
+        t=time.time()
+        players = self.game_data.get("players")
+        players1_segments = players.get("player1").get("segments")
+        players2_segments = players.get("player2").get("segments")
+        player1spacetime = list(players1_segments[0]).append(t)
+        player2spacetime = list(players2_segments[0]).append(t)
+        # plot1 = dt.Plotter()
+        # plot1.plot_movement(player1spacetime=player1spacetime, player2spacetime=player2spacetime)
+
+        os.system(f"echo {player1spacetime}, {player2spacetime} >> ./b_plan/movement_log.gg")
+
+
+        # plot1.draw() 
 
     def draw(self):
         self.game_data = self.game_engine.get_game_data()
